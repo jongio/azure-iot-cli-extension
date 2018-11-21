@@ -5,25 +5,25 @@
 # --------------------------------------------------------------------------------------------
 # pylint: disable=wrong-import-order
 
-from os.path import exists, basename
-from time import time, sleep
+from os.path import basename, exists
+from time import sleep, time
+
 import six
+
+from azext_iot._constants import BASE_API_VERSION, EXTENSION_ROOT
+from azext_iot._factory import _bind_sdk
+from azext_iot.common._azure import get_iot_hub_connection_string
+from azext_iot.common.sas_token_auth import SasTokenAuthentication
+from azext_iot.common.shared import DeviceAuthType, MetricType, SdkType
+from azext_iot.common.utility import (calculate_millisec_since_unix_epoch_utc,
+                                      evaluate_literal, shell_safe_json_parse,
+                                      unpack_msrest_error, url_encode_dict,
+                                      validate_key_value_pairs)
+from azext_iot.operations.generic import _execute_query, _process_top
+from azure.cli.core._output import get_output_format
+from azure.cli.core.util import read_file_content
 from knack.log import get_logger
 from knack.util import CLIError
-from azure.cli.core.util import read_file_content
-from azext_iot.common.utility import calculate_millisec_since_unix_epoch_utc
-from azext_iot._constants import EXTENSION_ROOT, BASE_API_VERSION
-from azext_iot.common.sas_token_auth import SasTokenAuthentication
-from azext_iot.common.shared import (DeviceAuthType,
-                                     SdkType,
-                                     MetricType)
-from azext_iot.common._azure import get_iot_hub_connection_string
-from azext_iot.common.utility import (shell_safe_json_parse,
-                                      validate_key_value_pairs, url_encode_dict,
-                                      evaluate_literal, unpack_msrest_error)
-from azext_iot._factory import _bind_sdk
-from azext_iot.operations.generic import _execute_query, _process_top
-
 
 logger = get_logger(__name__)
 
@@ -1126,7 +1126,7 @@ def iot_hub_monitor_events(cmd, hub_name=None, device_id=None, consumer_group='$
     timeout = (timeout * 1000)
 
     config = cmd.cli_ctx.config
-    output = cmd.cli_ctx.invocation.data.get("output", None)
+    output = get_output_format(cmd.cli_ctx)
     ensure_uamqp(config, yes, repair)
 
     events3 = importlib.import_module('azext_iot.operations.events3._events')
